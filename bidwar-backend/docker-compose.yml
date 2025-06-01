@@ -1,0 +1,87 @@
+services:
+  frontend: # NOUVEAU SERVICE FRONTEND
+    build:
+      context: ../bidwar-frontend # CHEMIN VERS VOTRE DOSSIER REACT (frère de bidwar-backend)
+      dockerfile: Dockerfile      # Assurez-vous que Dockerfile existe dans bidwar-frontend
+    ports:
+      - "3000:80" # Accédez à votre React app via http://localhost:3000
+    depends_on:
+      - user-service
+      - auction-service
+
+  user-service:
+    build: ./user-service # Dockerfile doit être dans bidwar-backend/user-service/
+    # ports: # Commenté - Accès via le proxy Nginx du frontend ou décommentez pour accès direct
+    #   - "${USER_SERVICE_PORT_HOST}:${USER_SERVICE_PORT_CONTAINER}"
+    environment:
+      MONGO_URI: ${MONGO_URI_USERS}
+      JWT_SECRET: ${JWT_SECRET_USERS}
+      PORT: ${USER_SERVICE_PORT_CONTAINER} # Ce port doit correspondre à celui dans le proxy_pass de nginx.conf (ex: 3001)
+      # RABBITMQ_URL: ${RABBITMQ_URL_ENV} # Si user-service publie des messages
+    volumes:
+      - ./user-service:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3001:3001"
+    
+    # depends_on:
+      # - rabbitmq # Si user-service publie des messages
+    # command: npm run dev
+
+  auction-service:
+    build: ./auction-service # Dockerfile doit être dans bidwar-backend/auction-service/
+    # ports: # Commenté - Accès via le proxy Nginx du frontend ou décommentez pour accès direct
+    #   - "${AUCTION_SERVICE_PORT_HOST}:${AUCTION_SERVICE_PORT_CONTAINER}"
+    environment:
+      MONGO_URI_AUCTIONS: ${MONGO_URI_AUCTIONS_ENV}
+      PORT_AUCTION: ${AUCTION_SERVICE_PORT_CONTAINER} # Ce port doit correspondre à celui dans le proxy_pass de nginx.conf (ex: 3002)
+      USER_JWT_SECRET: ${JWT_SECRET_USERS}
+      RABBITMQ_URL: ${RABBITMQ_URL_ENV}
+    volumes:
+      - ./auction-service:/usr/src/app-auction
+      - /usr/src/app-auction/node_modules
+    depends_on:
+      - user-service
+      - rabbitmq
+    ports:
+      - "3002:3002"
+    # command: npm run dev
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: bidwar_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+        test: ["CMD", "rabbitmqctl", "status"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+  # notification-service:
+  #   build: ./notification-service # Dockerfile doit être dans bidwar-backend/notification-service/
+  #   # ports: # Commenté - Probablement pas besoin d'exposer le port à l'hôte
+  #   #   - "${NOTIFICATION_SERVICE_PORT_HOST}:${NOTIFICATION_SERVICE_PORT_CONTAINER}"
+  #   environment:
+  #     RABBITMQ_URL: ${RABBITMQ_URL_ENV}
+  #     PORT_NOTIFICATION: ${NOTIFICATION_SERVICE_PORT_CONTAINER} # Port interne du conteneur
+  #     # EMAIL_HOST: ${EMAIL_HOST_ENV}
+  #     # EMAIL_PORT: ${EMAIL_PORT_ENV}
+  #     # EMAIL_USER: ${EMAIL_USER_ENV}
+  #     # EMAIL_PASS: ${EMAIL_PASS_ENV}
+  #     # EMAIL_FROM: ${EMAIL_FROM_ENV}
+  #   volumes:
+  #     - ./notification-service:/usr/src/app-notification
+  #     - /usr/src/app-notification/node_modules
+  #   depends_on:
+  #     - rabbitmq
+  #   # command: npm run dev
+
+volumes:
+  rabbitmq_data: {}

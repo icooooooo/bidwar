@@ -1,0 +1,23 @@
+node_modules/
+
+# Dossier de build (si vous ne voulez pas commiter le build, ce qui est courant)
+build/
+dist/
+.next/ # Pour Next.js
+.nuxt/ # Pour Nuxt.js
+
+# Fichiers d'environnement locaux du frontend
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Fichiers d'éditeur/IDE (peuvent être dans le .gitignore racine aussi)
+.vscode/
+.idea/

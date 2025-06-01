@@ -1,0 +1,92 @@
+.auction-detail-page {
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+}
+
+.auction-detail-header {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.auction-detail-header h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: var(--text-primary);
+    flex-grow: 1;
+}
+.back-button {
+    background: var(--background-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.back-button:hover {
+    background-color: var(--border-color);
+}
+
+
+.auction-content-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); /* Responsive columns */
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.auction-images {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+.auction-images .auction-image-item {
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.auction-info.card { padding: 1.5rem; }
+.auction-status-detail { font-size: 1rem; margin-bottom: 0.5rem; }
+.auction-status-detail .status-active,
+.auction-status-detail .status-ended,
+.auction-status-detail .status-pending_approval { /* Réutiliser les styles de AuctionCard.css */
+    font-weight: bold; padding: 0.2rem 0.5rem; border-radius: 4px; display: inline-block; text-transform: uppercase; border: 1px solid transparent;
+}
+.status-active { color: var(--success-color); background-color: rgba(40, 167, 69, 0.1); border-color: var(--success-color); }
+.status-ended { color: var(--danger-color); background-color: rgba(220, 53, 69, 0.1); border-color: var(--danger-color); }
+.status-pending_approval { color: var(--text-secondary); background-color: rgba(108, 117, 125, 0.1); border-color: var(--text-secondary); }
+
+
+.auction-timer-detail { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 1rem; font-weight: 500; }
+.current-price-detail { font-size: 1.8rem; margin-bottom: 0.5rem; }
+.current-price-detail strong { color: var(--accent-primary); font-weight: 700; }
+.start-price-detail { font-size: 1rem; color: var(--text-secondary); margin-bottom: 1.5rem; }
+
+.bid-form { margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; }
+.bid-form h3 { margin-top: 0; margin-bottom: 1rem; }
+.seller-notice { margin-top: 1.5rem; padding: 0.75rem; background-color: var(--background-secondary); border: 1px solid var(--border-color); border-radius: 4px; font-style: italic; color: var(--text-secondary); }
+.auction-ended-notice { margin-top: 1.5rem; padding: 0.75rem; background-color: var(--background-secondary); border: 1px solid var(--border-color); border-radius: 4px; font-weight: bold; text-align: center;}
+
+
+.auction-description.card,
+.auction-bids-history.card { padding: 1.5rem; margin-bottom: 2rem; }
+.auction-description h3,
+.auction-bids-history h3 { margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+.auction-bids-history ul { list-style: none; padding-left: 0; max-height: 300px; overflow-y: auto; }
+.auction-bids-history li { padding: 0.5rem 0.2rem; border-bottom: 1px dashed var(--border-color); font-size: 0.9rem; color: var(--text-secondary); }
+.auction-bids-history li:last-child { border-bottom: none; }
+
+@media (max-width: 992px) {
+    .auction-content-grid { grid-template-columns: 1fr; }
+    .auction-info.card { margin-top: 1.5rem; }
+}
+@media (max-width: 768px) {
+    .auction-detail-header h1 { font-size: 1.6rem; }
+    .current-price-detail { font-size: 1.5rem; }
+}

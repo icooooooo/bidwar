@@ -1,0 +1,33 @@
+/* Default (Light) Theme */
+:root {
+  --background-primary: #ffffff;
+  --background-secondary: #f8f9fa;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --accent-primary: #007bff;
+  --accent-secondary: #0056b3;
+  --border-color: #dee2e6;
+  --card-background: #ffffff;
+  --button-text-color: #ffffff;
+  --danger-color: #dc3545;
+  --success-color: #28a745;
+  --link-color: #007bff;
+  --navbar-height: 60px;
+  --footer-height: 50px;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --background-primary: #1a1a1a;
+  --background-secondary: #2c2c2c;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --accent-primary: #0096FF;
+  --accent-secondary: #006bb3;
+  --border-color: #444444;
+  --card-background: #2c2c2c;
+  --button-text-color: #ffffff;
+  --danger-color: #ff4d4d;
+  --success-color: #4caf50;
+  --link-color: #0096FF;
+}

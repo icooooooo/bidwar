@@ -1,0 +1,22 @@
+.DS_Store
+Thumbs.db
+
+# Dossiers de dépendances Node.js (seront gérés par les .gitignore des sous-projets)
+# node_modules/ # Commenté ici, car on va le gérer dans les sous-projets
+
+# Fichiers d'environnement locaux (contenant des secrets)
+# Nous allons gérer des .env spécifiques dans chaque sous-projet
+# *.env # Trop générique ici, on le fera dans les sous-projets
+
+# Fichiers IDE / Éditeur
+.vscode/
+.idea/
+*.suo
+*.user
+*.log
+*.tmp
+*.bak
+
+# Dossiers de build (seront gérés par les .gitignore des sous-projets)
+# build/
+# dist/

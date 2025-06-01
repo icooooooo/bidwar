@@ -1,0 +1,17 @@
+# Fichiers d'environnement du backend (contenant les URI de DB, secrets JWT, etc.)
+.env # Le .env racine de docker-compose
+
+# Dossiers node_modules des services backend
+user-service/node_modules/
+auction-service/node_modules/
+notification-service/node_modules/ # Si vous le créez
+
+# Fichiers .env spécifiques aux services (si vous en utilisez pour le dev local sans Docker)
+user-service/.env
+auction-service/.env
+notification-service/.env
+
+# Logs et fichiers temporaires spécifiques au backend
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
