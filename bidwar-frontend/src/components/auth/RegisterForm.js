@@ -4,11 +4,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import './AuthForm.css';
 
 const RegisterForm = () => {
-  const [username, setUsername] = useState('');
+  // const [username, setUsername] = useState('');
+  const [nom, setNom] = useState('');           // AJOUTER
+  const [prenom, setPrenom] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('Buyer'); // Choix du rôle
+  const [role, setRole] = useState('Acheteur'); // Choix du rôle
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const auth = useAuth();
@@ -23,7 +25,7 @@ const RegisterForm = () => {
     setError('');
     setLoading(true);
     try {
-      await auth.register({ username, email, password, role });
+      await auth.register({nom,prenom,email, password, role });
       navigate('/');
     } catch (err) {
       setError(err.message || "Échec de l'inscription.");
@@ -37,8 +39,12 @@ const RegisterForm = () => {
       <h2>Inscription</h2>
       {error && <p className="error-message">{error}</p>}
       <div className="form-group">
-        <label htmlFor="reg-username">Nom d'utilisateur</label>
-        <input type="text" id="reg-username" value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="username"/>
+        <label htmlFor="reg-nom">Nom</label>
+        <input type="text" id="reg-nom" value={nom} onChange={(e) => setNom(e.target.value)} required autoComplete="nom"/>
+      </div>
+      <div className="form-group">
+        <label htmlFor="reg-prenom">Prenom</label>
+        <input type="text" id="reg-prenom" value={prenom} onChange={(e) => setPrenom(e.target.value)} required autoComplete="prenom"/>
       </div>
       <div className="form-group">
         <label htmlFor="reg-email">Email</label>
@@ -55,8 +61,8 @@ const RegisterForm = () => {
       <div className="form-group">
         <label htmlFor="role">Je souhaite m'inscrire en tant que :</label>
         <select id="role" value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="Buyer">Acheteur</option>
-            <option value="Seller">Vendeur</option>
+            <option value="Acheteur">Acheteur</option>
+            <option value="Vendeur">Vendeur</option>
         </select>
       </div>
       <button type="submit" className="button-primary" disabled={loading || auth.isLoading}>

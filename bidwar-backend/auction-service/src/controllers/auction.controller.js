@@ -1,5 +1,6 @@
 const Auction = require('../models/auction.model'); // Assurez-vous que le chemin est correct
 const Bid = require('../models/bid.model');
+const { publishToExchange } = require('../config/rabbitmqPublisher');
 const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
 // @desc    Créer une nouvelle enchère
@@ -48,7 +49,16 @@ exports.createAuction = async (req, res) => {
         });
 
         const createdAuction = await auction.save();
-        console.log(`NOTIFICATION_EVENT: AUCTION_CREATED_PENDING_APPROVAL - AuctionID: ${createdAuction._id}, SellerID: ${seller_id},Status: ${createdAuction.status}, Titre: ${createdAuction.titre}`);
+        const eventData = {
+    auctionId: createdAuction._id.toString(),
+    sellerId: seller_id.toString(),
+    status: createdAuction.status,
+    titre: createdAuction.titre,
+    startTime: createdAuction.start_time,
+    endTime: createdAuction.end_time,
+    prixDepart: createdAuction.prix_depart
+};
+await publishToExchange('auction.created', eventData);
         res.status(201).json(createdAuction);
 
     } catch (error) {
@@ -193,7 +203,26 @@ exports.placeBid = async (req, res) => {
 
         // (Plus tard : Logique de notification pour l'ancien meilleur enchérisseur, etc.)
 
-        console.log(`NOTIFICATION_EVENT: NEW_BID_PLACED - AuctionID: ${updatedAuction._id}, BidderID: ${bidder_id}, Amount: ${bid_amount}, SellerID: ${updatedAuction.seller_id}, Titre: ${updatedAuction.titre}`);
+        const newBidEvent = {
+            auctionId: updatedAuction._id.toString(),
+            auctionTitle: updatedAuction.titre,
+            bidderId: bidder_id.toString(),
+            amount: bid_amount,
+            sellerId: updatedAuction.seller_id.toString()
+        };
+        await publishToExchange('bid.placed', newBidEvent);
+
+// Pour l'offre dépassée
+        if (previousHighestBidderId && previousHighestBidderId.toString() !== bidder_id.toString()) {
+        const outbidEvent = {
+            auctionId: updatedAuction._id.toString(),
+            auctionTitle: updatedAuction.titre,
+            outbidUserId: previousHighestBidderId.toString(),
+            newBidderId: bidder_id.toString(),
+            newAmount: bid_amount
+        };
+   await publishToExchange('bid.outbid', outbidEvent);
+}
         if (previousHighestBidderId && previousHighestBidderId.toString() !== bidder_id.toString()) {
            console.log(`NOTIFICATION_EVENT: BID_OUTBID - AuctionID: ${updatedAuction._id}, OutbidUserID: ${previousHighestBidderId}, NewBidderID: ${bidder_id}, NewAmount: ${bid_amount}, Titre: ${updatedAuction.titre}`);
         }
@@ -403,7 +432,13 @@ exports.approveAuction = async (req, res) => {
         const approvedAuction = await auction.save();
 
         // CORRECTION ICI :
-        console.log(`NOTIFICATION_EVENT: AUCTION_APPROVED - AuctionID: ${approvedAuction._id}, AdminID: ${req.auth.id}, NewStatus: ${approvedAuction.status}, Titre: ${approvedAuction.titre}`);
+        const eventData = {
+    auctionId: approvedAuction._id.toString(),
+    adminId: req.auth.id.toString(),
+    newStatus: approvedAuction.status,
+    titre: approvedAuction.titre
+};
+await publishToExchange('auction.approved', eventData);
         res.json(approvedAuction);
 
     } catch (error) {
@@ -446,7 +481,13 @@ exports.rejectAuction = async (req, res) => {
 
         const rejectedAuction = await auction.save();
 
-        console.log(`NOTIFICATION_EVENT: AUCTION_REJECTED - AuctionID: ${rejectedAuction._id}, AdminID: ${req.auth.id}, Reason: ${rejectedAuction.rejection_reason}, Titre: ${rejectedAuction.titre}`);
+        const eventData = {
+    auctionId: rejectedAuction._id.toString(),
+    adminId: req.auth.id.toString(),
+    reason: rejectedAuction.rejection_reason,
+    titre: rejectedAuction.titre
+};
+await publishToExchange('auction.rejected', eventData);
         res.json(rejectedAuction);
 
     } catch (error) {

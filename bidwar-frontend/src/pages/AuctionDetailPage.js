@@ -102,7 +102,7 @@ const AuctionDetailPage = () => {
                 </div>
                 )}
                 <p className="current-price-detail">Prix actuel: <strong>{auction.current_price.toFixed(2)} €</strong></p>
-                <p className="start-price-detail">Prix de départ: {auction.start_price.toFixed(2)} €</p>
+                <p className="start-price-detail">Prix de départ: {auction.prix_depart.toFixed(2)} €</p>
                 {auction.highest_bidder_username && <p>Meilleur enchérisseur: {auction.highest_bidder_username}</p>}
                 <p>Vendu par: {auction.seller_username || `Vendeur ID ${auction.seller_id}`}</p>
                 

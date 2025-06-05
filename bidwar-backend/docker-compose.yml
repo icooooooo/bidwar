@@ -1,7 +1,7 @@
 services:
   frontend: # NOUVEAU SERVICE FRONTEND
     build:
-      context: ../bidwar-frontend # CHEMIN VERS VOTRE DOSSIER REACT (frère de bidwar-backend)
+      context: ./frontend # CHEMIN VERS VOTRE DOSSIER REACT (frère de bidwar-backend)
       dockerfile: Dockerfile      # Assurez-vous que Dockerfile existe dans bidwar-frontend
     ports:
       - "3000:80" # Accédez à votre React app via http://localhost:3000
@@ -10,13 +10,13 @@ services:
       - auction-service
 
   user-service:
-    build: ./user-service # Dockerfile doit être dans bidwar-backend/user-service/
-    # ports: # Commenté - Accès via le proxy Nginx du frontend ou décommentez pour accès direct
-    #   - "${USER_SERVICE_PORT_HOST}:${USER_SERVICE_PORT_CONTAINER}"
+    build: ./user-service 
     environment:
       MONGO_URI: ${MONGO_URI_USERS}
       JWT_SECRET: ${JWT_SECRET_USERS}
-      PORT: ${USER_SERVICE_PORT_CONTAINER} # Ce port doit correspondre à celui dans le proxy_pass de nginx.conf (ex: 3001)
+      PORT: ${USER_SERVICE_PORT_CONTAINER}
+      RABBITMQ_URL: ${RABBITMQ_URL_ENV}
+       # Ce port doit correspondre à celui dans le proxy_pass de nginx.conf (ex: 3001)
       # RABBITMQ_URL: ${RABBITMQ_URL_ENV} # Si user-service publie des messages
     volumes:
       - ./user-service:/usr/src/app
@@ -64,24 +64,21 @@ services:
         timeout: 10s
         retries: 5
 
-  # notification-service:
-  #   build: ./notification-service # Dockerfile doit être dans bidwar-backend/notification-service/
-  #   # ports: # Commenté - Probablement pas besoin d'exposer le port à l'hôte
-  #   #   - "${NOTIFICATION_SERVICE_PORT_HOST}:${NOTIFICATION_SERVICE_PORT_CONTAINER}"
-  #   environment:
-  #     RABBITMQ_URL: ${RABBITMQ_URL_ENV}
-  #     PORT_NOTIFICATION: ${NOTIFICATION_SERVICE_PORT_CONTAINER} # Port interne du conteneur
-  #     # EMAIL_HOST: ${EMAIL_HOST_ENV}
-  #     # EMAIL_PORT: ${EMAIL_PORT_ENV}
-  #     # EMAIL_USER: ${EMAIL_USER_ENV}
-  #     # EMAIL_PASS: ${EMAIL_PASS_ENV}
-  #     # EMAIL_FROM: ${EMAIL_FROM_ENV}
-  #   volumes:
-  #     - ./notification-service:/usr/src/app-notification
-  #     - /usr/src/app-notification/node_modules
-  #   depends_on:
-  #     - rabbitmq
-  #   # command: npm run dev
-
+  notification-service:
+    build: ./notification-service
+    container_name: bidwar_notification_service
+    ports: # Optionnel, seulement si vous voulez exposer un port (ex: pour un health check)
+      - "${NOTIFICATION_SERVICE_PORT_HOST}:${NOTIFICATION_SERVICE_PORT_CONTAINER}" # Ex: 3003:3003
+    environment:
+      RABBITMQ_URL: ${RABBITMQ_URL_ENV} # Sera défini dans le .env racine
+      PORT_NOTIFICATION: ${NOTIFICATION_SERVICE_PORT_CONTAINER} # Ex: 3003
+      # Ajoutez d'autres variables d'environnement nécessaires
+    volumes:
+      - ./notification-service:/usr/src/app-notification
+      - /usr/src/app-notification/node_modules
+    depends_on:
+      - rabbitmq # Important, notification-service a besoin que RabbitMQ soit démarré
+    # networks:
+    #   - bidwar_network
 volumes:
   rabbitmq_data: {}
